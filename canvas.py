@@ -48,20 +48,20 @@ def getNextState(state, action):
 def getRenderedState(state):
     # canvas with current brush position drawn
     canvas = np.stack([state.canvas, state.canvas, state.canvas], axis=2)
-    rr, cc = draw.circle_perimeter(
+    rr, cc, intensities = draw.circle_perimeter_aa(
         round(state.height-state.brushY), # row
         round(state.brushX), # column
         radius=round(abs(state.brushHeight)), # radius
         shape=(state.height, state.width)
     )
+    
+    for channel in range(3):
+        canvas[rr, cc, channel] = canvas[rr, cc, channel] * (1-intensities)
+    
     if state.brushHeight < 0:
         # draw in green
-        canvas[rr, cc, 0] = 0
-        canvas[rr, cc, 1] = 255
-        canvas[rr, cc, 2] = 0
+        canvas[rr, cc, 1] = canvas[rr, cc, 1] + 255*intensities
     else:
         # draw in red
-        canvas[rr, cc, 0] = 255
-        canvas[rr, cc, 1] = 0
-        canvas[rr, cc, 2] = 0
+        canvas[rr, cc, 0] = canvas[rr, cc, 0] + 255*intensities
     return canvas
