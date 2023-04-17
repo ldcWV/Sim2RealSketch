@@ -4,7 +4,7 @@ import copy
 import math
 
 class CanvasState:
-    def __init__(self, width=256, height=256, minBrushHeight=-10, maxBrushHeight=1):
+    def __init__(self, width=256, height=256, minBrushHeight=-30, maxBrushHeight=10):
         self.width = width # width of canvas (in pixels)
         self.height = height # heigh of canvas (in pixels)
         self.brushX = width/2
@@ -26,8 +26,8 @@ def getNextState(state, action):
     res = copy.deepcopy(state)
     
     # Get updated brush position
-    newBrushX = max(0, min(state.brushX + action[0], state.width))
-    newBrushY = max(0, min(state.brushY + action[1], state.height))
+    newBrushX = state.brushX + action[0]
+    newBrushY = state.brushY + action[1]
     newBrushHeight = max(state.minBrushHeight, min(state.brushHeight + action[2], state.maxBrushHeight))
     
     # Update canvas
