@@ -1,4 +1,5 @@
 from canvas import *
+from replay import Replay
 import numpy as np
 
 class CubicBezierGenerator:
@@ -40,33 +41,51 @@ class CubicBezierGenerator:
         p2 += T
         p3 += T
         
-        # execution
-        cur = np.array([p0[0],p0[1],0])
         # move to start
-        action = np.array([
-            cur[0] - state.brushX,
-            cur[1] - state.brushY,
-            cur[2] - state.brushHeight
-        ])
-        state = getNextState(state, action)
+        history = []
+        start = np.array([p0[0], p0[1], 0.0])
+        cur = np.array([state.brushX, state.brushY, state.brushHeight])
+        while np.linalg.norm(start - cur) > 1e-6:
+            action = start - cur
+            action[0] = max(min(action[0], 1.0), -1.0)
+            action[1] = max(min(action[1], 1.0), -1.0)
+            action[2] = max(min(action[2], 0.2), -0.2)
+            history.append((state, action))
+            state = getNextState(state, action)
+            cur += action
         
-        # draw the stroke
-        N = 50
-        for timestep in range(N):
-            t = timestep / (N-1)
+        def get_pos(t):
+            # (x,y) coordinates
             pos = (1-t)**3 * p0 +\
                   3*(1-t)**2*t * p1 +\
                   3*(1-t)*t**2 * p2 +\
                   t**3 * p3
+            
+            # height
             if t < 1/3:
                 h = t*3 * height
             elif 1/3 <= t and t < 2/3:
                 h = height
             else:
                 h = (1-t)*3 * height
-            new_cur = np.array([pos[0], pos[1], h])
-            action = new_cur - cur
-            state = getNextState(state, action)
-            cur = new_cur
+            
+            return np.array([pos[0], pos[1], h])
         
-        return getRenderedState(state)
+        # draw the stroke
+        t = 0
+        max_dt = 0.05
+        while t < 0.99:
+            dt = max_dt
+            while True:
+                new_pos = get_pos(t + dt)
+                action = new_pos - cur
+                if abs(action[0]) > 1 or abs(action[1]) > 1 or abs(action[2]) > 0.2:
+                    dt /= 2
+                else:
+                    t += dt
+                    break
+            history.append((state, action))
+            state = getNextState(state, action)
+            cur = new_pos
+        
+        return Replay(history)
