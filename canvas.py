@@ -45,9 +45,13 @@ def getNextState(state, action):
     res.brushHeight = newBrushHeight
     return res
 
+def getCanvas(state):
+    # just the base convas as a H x W x 3 array
+    return np.stack([state.canvas, state.canvas, state.canvas], axis=2)
+
 def getRenderedState(state):
     # canvas with current brush position drawn
-    canvas = np.stack([state.canvas, state.canvas, state.canvas], axis=2)
+    canvas = getCanvas(state)
     rr, cc, intensities = draw.circle_perimeter_aa(
         round(state.height-state.brushY), # row
         round(state.brushX), # column
