@@ -54,6 +54,7 @@ class CubicBezierGenerator:
             state = getNextState(state, action)
             cur += action
         
+        # draw the stroke
         def get_pos(t):
             # (x,y) coordinates
             pos = (1-t)**3 * p0 +\
@@ -71,7 +72,6 @@ class CubicBezierGenerator:
             
             return np.array([pos[0], pos[1], h])
         
-        # draw the stroke
         t = 0
         max_dt = 0.05
         while t < 0.99:

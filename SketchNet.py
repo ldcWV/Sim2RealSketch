@@ -55,7 +55,7 @@ class SketchNet(nn.Module):
         # image: (N, 6, 256, 256)
         # brush_pos: (N, 3)
         tmp = self.conv(image)            # (N, 512, 8, 8)
-        tmp = torch.view(tmp.size(0), -1) # (N, 512*8*8)
+        tmp = tmp.view(tmp.size(0), -1) # (N, 512*8*8)
         tmp = self.fc1(tmp)               # (N, 4096)
         image_features = self.fc2(tmp)    # (N, 4096)
         
@@ -64,7 +64,5 @@ class SketchNet(nn.Module):
         x = self.fc4(x)       # (N, 1024)
         x = self.output_fc(x) # (N, 3)
         
-        x[0] *= 1   # brushX
-        x[1] *= 1   # brushY
-        x[2] *= 0.2 # brushHeight
+        x = x * torch.Tensor([1, 1, 0.2]).to(x.device)
         return x
