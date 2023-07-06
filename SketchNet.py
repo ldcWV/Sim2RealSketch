@@ -2,6 +2,12 @@ import numpy as np
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+from torchvision import transforms
+
+preprocess = transforms.Compose([
+    transforms.ToTensor(),
+    transforms.Normalize(mean=[0.0, 0.0, 0.0], std=[1.0, 1.0, 1.0]),
+])
 
 def conv_block(in_channels, out_channels, kernel_size=3, padding=1):
     return nn.Sequential(
@@ -55,7 +61,7 @@ class SketchNet(nn.Module):
         # image: (N, 6, 256, 256)
         # brush_pos: (N, 3)
         tmp = self.conv(image)            # (N, 512, 8, 8)
-        tmp = tmp.view(tmp.size(0), -1) # (N, 512*8*8)
+        tmp = tmp.view(tmp.size(0), -1)   # (N, 512*8*8)
         tmp = self.fc1(tmp)               # (N, 4096)
         image_features = self.fc2(tmp)    # (N, 4096)
         

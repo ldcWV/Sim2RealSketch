@@ -63,9 +63,9 @@ class CubicBezierGenerator:
                   t**3 * p3
             
             # height
-            if t < 1/3:
-                h = t*3 * height
-            elif 1/3 <= t and t < 2/3:
+            if t < 1/10:
+                h = t*10 * height
+            elif 1/10 <= t and t < 2/3:
                 h = height
             else:
                 h = (1-t)*3 * height
